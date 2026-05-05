@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}الإعدادات{% endblock %}
+{% block page_title %}الإعدادات{% endblock %}
+{% block page_subtitle %}بيانات عامة للنظام{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="form-surface" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <section class="form-grid">
+        {% include "partials/form_field.html" with field=form.company_name %}
+        {% include "partials/form_field.html" with field=form.default_currency %}
+        {% include "partials/form_field.html" with field=form.company_logo %}
+        <div class="form-field span-2">
+            <label for="{{ form.backup_directory.id_for_label }}">
+                {{ form.backup_directory.label }}
+            </label>
+            <div class="path-picker">
+                {{ form.backup_directory }}
+                <button type="button" class="btn btn-light" data-backup-directory-picker data-target="#{{ form.backup_directory.id_for_label }}">
+                    اختيار مجلد
+                </button>
+            </div>
+            <small class="help-text">سيتم حفظ ملف ZIP للنسخة الاحتياطية داخل هذا المجلد عند الخروج.</small>
+            {% for error in form.backup_directory.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+        </div>
+        {% include "partials/form_field.html" with field=form.notes wrapper_class="span-2" %}
+    </section>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
+    </div>
+</form>
+{% endblock %}

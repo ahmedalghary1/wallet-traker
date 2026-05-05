@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}المحافظ{% endblock %}
+{% block page_title %}المحافظ{% endblock %}
+{% block page_subtitle %}الأرصدة الحالية محسوبة من العمليات{% endblock %}
+
+{% block content %}
+<section class="toolbar compact-toolbar">
+    <div></div>
+    <a href="{% url 'core:wallet_add' %}" class="btn btn-primary">إضافة محفظة</a>
+</section>
+
+<section class="section-block">
+    <div class="table-wrap desktop-table">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>اسم المحفظة</th>
+                    <th>النوع</th>
+                    <th>الرقم</th>
+                    <th>الرصيد الافتتاحي</th>
+                    <th>الرصيد الحالي</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wallet in wallets %}
+                    <tr>
+                        <td>{{ wallet.name }}</td>
+                        <td>{{ wallet.get_wallet_type_display }}</td>
+                        <td>{{ wallet.phone_number }}</td>
+                        <td>{{ wallet.opening_balance|floatformat:2 }}</td>
+                        <td class="text-positive">{{ wallet.current_balance|floatformat:2 }}</td>
+                        <td>
+                            {% if wallet.is_active %}
+                                <span class="status active">نشطة</span>
+                            {% else %}
+                                <span class="status inactive">غير نشطة</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <a href="{% url 'core:wallet_edit' wallet.pk %}" class="btn-icon">تعديل</a>
+                                <form method="post" action="{% url 'core:wallet_delete' wallet.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon danger js-confirm-delete">حذف</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="empty-row">لا توجد محافظ بعد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mobile-cards">
+        {% for wallet in wallets %}
+            <article class="mobile-record">
+                <div class="record-head">
+                    <strong>{{ wallet.name }}</strong>
+                    {% if wallet.is_active %}<span class="status active">نشطة</span>{% else %}<span class="status inactive">غير نشطة</span>{% endif %}
+                </div>
+                <dl>
+                    <div><dt>النوع</dt><dd>{{ wallet.get_wallet_type_display }}</dd></div>
+                    <div><dt>الرقم</dt><dd>{{ wallet.phone_number }}</dd></div>
+                    <div><dt>الرصيد الافتتاحي</dt><dd>{{ wallet.opening_balance|floatformat:2 }}</dd></div>
+                    <div><dt>الرصيد الحالي</dt><dd class="text-positive">{{ wallet.current_balance|floatformat:2 }}</dd></div>
+                </dl>
+                <div class="row-actions">
+                    <a href="{% url 'core:wallet_edit' wallet.pk %}" class="btn-icon">تعديل</a>
+                    <form method="post" action="{% url 'core:wallet_delete' wallet.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-icon danger js-confirm-delete">حذف</button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">لا توجد محافظ بعد.</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

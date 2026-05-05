@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}تسجيل حركة مالية على محفظة الشركة{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="form-surface transaction-form" data-net-form novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+
+    <section class="form-section">
+        <h2>نوع العملية</h2>
+        <div class="segmented-control">
+            {% for radio in form.transaction_type %}
+                <label class="segment">
+                    {{ radio.tag }}
+                    <span>{{ radio.choice_label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        {% for error in form.transaction_type.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+    </section>
+
+    <section class="form-grid">
+        {% include "partials/form_field.html" with field=form.wallet %}
+        <div data-bank-field>
+            {% include "partials/form_field.html" with field=form.bank_account %}
+        </div>
+        <div data-customer-field>
+            {% include "partials/form_field.html" with field=form.customer_name %}
+        </div>
+        <div data-customer-field>
+            {% include "partials/form_field.html" with field=form.customer_phone %}
+        </div>
+        {% include "partials/form_field.html" with field=form.amount %}
+        {% include "partials/form_field.html" with field=form.fee %}
+        {% include "partials/form_field.html" with field=form.net_amount %}
+        {% include "partials/form_field.html" with field=form.reference_number %}
+        {% include "partials/form_field.html" with field=form.transaction_date %}
+        {% include "partials/form_field.html" with field=form.receipt_image %}
+        {% include "partials/form_field.html" with field=form.notes wrapper_class="span-2" %}
+    </section>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+        <a href="{% url 'core:transaction_list' %}" class="btn btn-light">إلغاء</a>
+    </div>
+</form>
+{% endblock %}

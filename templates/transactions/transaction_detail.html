@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل العملية{% endblock %}
+{% block page_title %}تفاصيل العملية{% endblock %}
+{% block page_subtitle %}بيانات العملية المسجلة{% endblock %}
+
+{% block content %}
+<section class="detail-layout">
+    <div class="detail-panel">
+        <div class="detail-heading">
+            <span class="badge">{{ transaction.get_transaction_type_display }}</span>
+            <strong>{{ transaction.net_amount|floatformat:2 }} {{ system_settings.default_currency|default:"جنيه" }}</strong>
+        </div>
+        <dl class="detail-list">
+            <div><dt>التاريخ</dt><dd>{{ transaction.transaction_date|date:"Y-m-d H:i" }}</dd></div>
+            <div><dt>المحفظة</dt><dd>{{ transaction.wallet.name }}</dd></div>
+            <div><dt>البنك</dt><dd>{{ transaction.bank_account|default:"-" }}</dd></div>
+            <div><dt>العميل</dt><dd>{{ transaction.customer_name|default:"-" }}</dd></div>
+            <div><dt>رقم العميل</dt><dd>{{ transaction.customer_phone|default:"-" }}</dd></div>
+            <div><dt>المبلغ</dt><dd>{{ transaction.amount|floatformat:2 }}</dd></div>
+            <div><dt>العمولة</dt><dd>{{ transaction.fee|floatformat:2 }}</dd></div>
+            <div><dt>الصافي</dt><dd class="text-positive">{{ transaction.net_amount|floatformat:2 }}</dd></div>
+            <div><dt>رقم العملية</dt><dd>{{ transaction.reference_number|default:"-" }}</dd></div>
+            <div class="span-2"><dt>ملاحظات</dt><dd>{{ transaction.notes|default:"-" }}</dd></div>
+        </dl>
+        {% if transaction.receipt_image %}
+            <a class="receipt-link" href="{{ transaction.receipt_image.url }}" target="_blank" rel="noopener">عرض صورة الإيصال</a>
+        {% endif %}
+    </div>
+
+    <div class="actions-panel">
+        <a href="{% url 'core:transaction_list' %}" class="btn btn-light full-width">رجوع</a>
+        {% if can_edit %}
+            <a href="{% url 'core:transaction_edit' transaction.pk %}" class="btn btn-secondary full-width">تعديل</a>
+        {% endif %}
+        <form method="post" action="{% url 'core:transaction_delete' transaction.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger full-width js-confirm-delete">حذف</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

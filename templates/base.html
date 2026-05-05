@@ -1,0 +1,83 @@
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}نظام متابعة المحافظ الإلكترونية{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+{% with url_name=request.resolver_match.url_name %}
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            {% if system_settings and system_settings.company_logo %}
+                <img src="{{ system_settings.company_logo.url }}" alt="شعار الشركة" class="brand-logo">
+            {% else %}
+                <span class="brand-mark">م</span>
+            {% endif %}
+            <div>
+                <strong>{{ system_settings.company_name|default:"نظام متابعة المحافظ الإلكترونية" }}</strong>
+                <small>إدارة المحافظ</small>
+            </div>
+        </div>
+
+        <nav class="nav-list" aria-label="القائمة الرئيسية">
+            <a href="{% url 'core:dashboard' %}" class="nav-link {% if url_name == 'dashboard' %}is-active{% endif %}">
+                <span class="nav-icon">01</span><span>الرئيسية</span>
+            </a>
+            <a href="{% url 'core:transaction_add' %}" class="nav-link {% if url_name == 'transaction_add' %}is-active{% endif %}">
+                <span class="nav-icon">02</span><span>عملية جديدة</span>
+            </a>
+            <a href="{% url 'core:transaction_list' %}" class="nav-link {% if url_name == 'transaction_list' or url_name == 'transaction_detail' or url_name == 'transaction_edit' %}is-active{% endif %}">
+                <span class="nav-icon">03</span><span>كل العمليات</span>
+            </a>
+            <a href="{% url 'core:wallet_list' %}" class="nav-link {% if url_name == 'wallet_list' or url_name == 'wallet_add' or url_name == 'wallet_edit' %}is-active{% endif %}">
+                <span class="nav-icon">04</span><span>المحافظ</span>
+            </a>
+            <a href="{% url 'core:bank_list' %}" class="nav-link {% if url_name == 'bank_list' or url_name == 'bank_add' or url_name == 'bank_edit' %}is-active{% endif %}">
+                <span class="nav-icon">05</span><span>البنوك</span>
+            </a>
+            <a href="{% url 'core:reports' %}" class="nav-link {% if url_name == 'reports' %}is-active{% endif %}">
+                <span class="nav-icon">06</span><span>التقارير</span>
+            </a>
+            <a href="{% url 'core:system_settings' %}" class="nav-link {% if url_name == 'system_settings' %}is-active{% endif %}">
+                <span class="nav-icon">07</span><span>الإعدادات</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <button type="button" class="icon-button menu-toggle" data-sidebar-toggle aria-label="فتح القائمة">
+                <span></span><span></span><span></span>
+            </button>
+            <div>
+                <h1>{% block page_title %}الرئيسية{% endblock %}</h1>
+                <p>{% block page_subtitle %}نظرة سريعة على حركة المحافظ{% endblock %}</p>
+            </div>
+        </header>
+
+        {% if messages %}
+            <div class="messages-stack">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<nav class="bottom-nav" aria-label="قائمة مختصرة">
+    <a href="{% url 'core:dashboard' %}" class="{% if url_name == 'dashboard' %}is-active{% endif %}">الرئيسية</a>
+    <a href="{% url 'core:transaction_add' %}" class="{% if url_name == 'transaction_add' %}is-active{% endif %}">إضافة</a>
+    <a href="{% url 'core:transaction_list' %}" class="{% if url_name == 'transaction_list' %}is-active{% endif %}">العمليات</a>
+    <a href="{% url 'core:reports' %}" class="{% if url_name == 'reports' %}is-active{% endif %}">التقارير</a>
+</nav>
+{% endwith %}
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

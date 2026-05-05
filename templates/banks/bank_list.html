@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}الحسابات البنكية{% endblock %}
+{% block page_title %}الحسابات البنكية{% endblock %}
+{% block page_subtitle %}حسابات الشركة المستخدمة في التحويلات{% endblock %}
+
+{% block content %}
+<section class="toolbar compact-toolbar">
+    <div></div>
+    <a href="{% url 'core:bank_add' %}" class="btn btn-primary">إضافة حساب بنكي</a>
+</section>
+
+<section class="section-block">
+    <div class="table-wrap desktop-table">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>اسم البنك</th>
+                    <th>اسم الحساب</th>
+                    <th>رقم الحساب</th>
+                    <th>الحالة</th>
+                    <th>ملاحظات</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bank in banks %}
+                    <tr>
+                        <td>{{ bank.bank_name }}</td>
+                        <td>{{ bank.account_name }}</td>
+                        <td>{{ bank.account_number }}</td>
+                        <td>{% if bank.is_active %}<span class="status active">نشط</span>{% else %}<span class="status inactive">غير نشط</span>{% endif %}</td>
+                        <td>{{ bank.notes|default:"-" }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <a href="{% url 'core:bank_edit' bank.pk %}" class="btn-icon">تعديل</a>
+                                <form method="post" action="{% url 'core:bank_delete' bank.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon danger js-confirm-delete">حذف</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="empty-row">لا توجد حسابات بنكية بعد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mobile-cards">
+        {% for bank in banks %}
+            <article class="mobile-record">
+                <div class="record-head">
+                    <strong>{{ bank.bank_name }}</strong>
+                    {% if bank.is_active %}<span class="status active">نشط</span>{% else %}<span class="status inactive">غير نشط</span>{% endif %}
+                </div>
+                <dl>
+                    <div><dt>اسم الحساب</dt><dd>{{ bank.account_name }}</dd></div>
+                    <div><dt>رقم الحساب</dt><dd>{{ bank.account_number }}</dd></div>
+                    <div><dt>ملاحظات</dt><dd>{{ bank.notes|default:"-" }}</dd></div>
+                </dl>
+                <div class="row-actions">
+                    <a href="{% url 'core:bank_edit' bank.pk %}" class="btn-icon">تعديل</a>
+                    <form method="post" action="{% url 'core:bank_delete' bank.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-icon danger js-confirm-delete">حذف</button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">لا توجد حسابات بنكية بعد.</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}بيانات الحساب البنكي المستخدم للتحويلات{% endblock %}
+
+{% block content %}
+<form method="post" class="form-surface" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <section class="form-grid">
+        {% include "partials/form_field.html" with field=form.bank_name %}
+        {% include "partials/form_field.html" with field=form.account_name %}
+        {% include "partials/form_field.html" with field=form.account_number %}
+        {% include "partials/form_field.html" with field=form.notes wrapper_class="span-2" %}
+        <div class="form-check span-2">
+            {{ form.is_active }}
+            <label for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+            {% for error in form.is_active.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+        </div>
+    </section>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+        <a href="{% url 'core:bank_list' %}" class="btn btn-light">إلغاء</a>
+    </div>
+</form>
+{% endblock %}

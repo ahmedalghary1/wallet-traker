@@ -1,0 +1,11 @@
+{
+  "name": "wallet-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix electron_app start",
+    "electron:install": "npm --prefix electron_app install",
+    "build:backend": "npm --prefix electron_app run build:backend",
+    "build:desktop": "npm --prefix electron_app run build"
+  }
+}

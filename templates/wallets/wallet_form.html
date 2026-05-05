@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}بيانات المحفظة ورصيدها الافتتاحي{% endblock %}
+
+{% block content %}
+<form method="post" class="form-surface" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <section class="form-grid">
+        {% include "partials/form_field.html" with field=form.name %}
+        {% include "partials/form_field.html" with field=form.wallet_type %}
+        {% include "partials/form_field.html" with field=form.phone_number %}
+        {% include "partials/form_field.html" with field=form.opening_balance %}
+        <div class="form-check span-2">
+            {{ form.is_active }}
+            <label for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+            {% for error in form.is_active.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+        </div>
+    </section>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+        <a href="{% url 'core:wallet_list' %}" class="btn btn-light">إلغاء</a>
+    </div>
+</form>
+{% endblock %}

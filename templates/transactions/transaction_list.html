@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}كل العمليات{% endblock %}
+{% block page_title %}كل العمليات{% endblock %}
+{% block page_subtitle %}عرض وتصفية العمليات المسجلة{% endblock %}
+
+{% block content %}
+<section class="toolbar">
+    <form method="get" class="filter-form">
+        <div class="form-field">
+            <label for="date_from">من تاريخ</label>
+            <input class="form-control" type="date" id="date_from" name="date_from" value="{{ filters.date_from }}">
+        </div>
+        <div class="form-field">
+            <label for="date_to">إلى تاريخ</label>
+            <input class="form-control" type="date" id="date_to" name="date_to" value="{{ filters.date_to }}">
+        </div>
+        <div class="form-field">
+            <label for="transaction_type">نوع العملية</label>
+            <select class="form-select" id="transaction_type" name="transaction_type">
+                <option value="">الكل</option>
+                {% for value, label in transaction_types %}
+                    <option value="{{ value }}" {% if filters.transaction_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field">
+            <label for="wallet">المحفظة</label>
+            <select class="form-select" id="wallet" name="wallet">
+                <option value="">الكل</option>
+                {% for wallet in wallets %}
+                    <option value="{{ wallet.id }}" {% if filters.wallet == wallet.id|stringformat:"s" %}selected{% endif %}>{{ wallet.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field">
+            <label for="bank">البنك</label>
+            <select class="form-select" id="bank" name="bank">
+                <option value="">الكل</option>
+                {% for bank in banks %}
+                    <option value="{{ bank.id }}" {% if filters.bank == bank.id|stringformat:"s" %}selected{% endif %}>{{ bank.bank_name }} - {{ bank.account_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field search-field">
+            <label for="q">بحث</label>
+            <input class="form-control" type="search" id="q" name="q" value="{{ filters.q }}" placeholder="اسم العميل أو رقم العملية">
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-primary" type="submit">تطبيق</button>
+            <a class="btn btn-light" href="{% url 'core:transaction_list' %}">مسح</a>
+        </div>
+    </form>
+    <a class="btn btn-primary" href="{% url 'core:transaction_add' %}">عملية جديدة</a>
+</section>
+
+<section class="section-block">
+    <div class="table-wrap desktop-table">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>النوع</th>
+                    <th>المحفظة</th>
+                    <th>البنك</th>
+                    <th>العميل</th>
+                    <th>رقم العميل</th>
+                    <th>المبلغ</th>
+                    <th>العمولة</th>
+                    <th>الصافي</th>
+                    <th>رقم العملية</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.transaction_date|date:"Y-m-d H:i" }}</td>
+                        <td><span class="badge">{{ transaction.get_transaction_type_display }}</span></td>
+                        <td>{{ transaction.wallet.name }}</td>
+                        <td>{{ transaction.bank_account.bank_name|default:"-" }}</td>
+                        <td>{{ transaction.customer_name|default:"-" }}</td>
+                        <td>{{ transaction.customer_phone|default:"-" }}</td>
+                        <td>{{ transaction.amount|floatformat:2 }}</td>
+                        <td>{{ transaction.fee|floatformat:2 }}</td>
+                        <td class="text-positive">{{ transaction.net_amount|floatformat:2 }}</td>
+                        <td>{{ transaction.reference_number|default:"-" }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <a href="{% url 'core:transaction_detail' transaction.pk %}" class="btn-icon">عرض</a>
+                                <a href="{% url 'core:transaction_edit' transaction.pk %}" class="btn-icon">تعديل</a>
+                                <form method="post" action="{% url 'core:transaction_delete' transaction.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon danger js-confirm-delete">حذف</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="11" class="empty-row">لا توجد عمليات مطابقة.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mobile-cards">
+        {% for transaction in transactions %}
+            <article class="mobile-record">
+                <div class="record-head">
+                    <strong>{{ transaction.get_transaction_type_display }}</strong>
+                    <span>{{ transaction.transaction_date|date:"Y-m-d H:i" }}</span>
+                </div>
+                <dl>
+                    <div><dt>المحفظة</dt><dd>{{ transaction.wallet.name }}</dd></div>
+                    <div><dt>البنك</dt><dd>{{ transaction.bank_account.bank_name|default:"-" }}</dd></div>
+                    <div><dt>العميل</dt><dd>{{ transaction.customer_name|default:"-" }}</dd></div>
+                    <div><dt>المبلغ</dt><dd>{{ transaction.amount|floatformat:2 }}</dd></div>
+                    <div><dt>العمولة</dt><dd>{{ transaction.fee|floatformat:2 }}</dd></div>
+                    <div><dt>الصافي</dt><dd class="text-positive">{{ transaction.net_amount|floatformat:2 }}</dd></div>
+                </dl>
+                <div class="row-actions">
+                    <a href="{% url 'core:transaction_detail' transaction.pk %}" class="btn-icon">عرض</a>
+                    <a href="{% url 'core:transaction_edit' transaction.pk %}" class="btn-icon">تعديل</a>
+                    <form method="post" action="{% url 'core:transaction_delete' transaction.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-icon danger js-confirm-delete">حذف</button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">لا توجد عمليات مطابقة.</div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if page_query %}{{ page_query }}&{% endif %}page={{ page_obj.previous_page_number }}">&lsaquo;</a>
+            {% endif %}
+            <span>صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?{% if page_query %}{{ page_query }}&{% endif %}page={{ page_obj.next_page_number }}">&rsaquo;</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
